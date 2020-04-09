@@ -19,11 +19,21 @@ cum_summary <- get_summary(data)
 
 shinyServer(function(input, output) {
    
+  # Data filter based on input
+  new_data <- reactive({
+    data[data$descripcion == input$region_filter, ]
+  })
+  
+  # Data filter based on input
+  cum_summary <- reactive({
+    get_summary(new_data())
+  })
+  
   # Info boxes
   output$info.infected <- renderInfoBox({
      infoBox(
         "INFECTADOS",
-        cum_summary["Infectados"],
+        cum_summary()["Infectados"],
         icon = icon("credit-card")
      )
     })
@@ -31,7 +41,7 @@ shinyServer(function(input, output) {
   output$info.recovered <- renderInfoBox({
     infoBox(
       "RECUPERADOS",
-      cum_summary["Recuperados"],
+      cum_summary()["Recuperados"],
       icon = icon("credit-card")
     )
   })
@@ -39,27 +49,30 @@ shinyServer(function(input, output) {
   output$info.dead <- renderInfoBox({
     infoBox(
       "FALLECIDOS",
-      cum_summary["Fallecidos"],
+      cum_summary()["Fallecidos"],
       icon = icon("credit-card")
     )
   })
   
-  output$plot.infected <- renderHighchart({
-    highchart() %>% 
-      hc_xAxis(categories = data$FECHA) %>% 
-      hc_add_series(name = "Infectados", data = data$Infectados)
+  output$plot_infected <- renderHighchart2({
+   time_series_hc(new_data(), "Infectados")
       })
   
-  output$plot.recovered <- renderHighchart({
-    time_series_hc(data, "Recuperados")  
+  output$plot_recovered <- renderHighchart({
+    time_series_hc(new_data(), "Recuperados")  
   })
-  #TODO update this
-  output$plot.hospital <- renderHighchart({
-    time_series_hc(data, "Hospitalizados")  
+
+  output$plot_hospital <- renderHighchart({
+    time_series_hc(new_data(), "Hospitalizados")  
+  })
+
+  output$plot_uci <- renderHighchart({
+    time_series_hc(new_data(), "UCI")  
   })
   
-  output$plot.dead <- renderHighchart({
-    time_series_hc(data, "Fallecidos")  
+    
+  output$plot_dead <- renderHighchart({
+    time_series_hc(new_data(), "Fallecidos")  
   })
   
 })

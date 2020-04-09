@@ -33,6 +33,6 @@ get_summary <- function(data){
 time_series_hc <- function(df, case){
   hc <- highchart() %>% 
           hc_xAxis(categories = df$FECHA) %>% 
-          hc_add_series(name = case, data = data[, names(data)==case])
+          hc_add_series(name = case, data = df[, names(df)==case], type="line")
   return(hc)  
   }
